@@ -15,6 +15,9 @@ var parseForm = bodyParser.urlencoded({ extended: false });
 // Put account info here
 var steemAcct = {username: 'steemretro', activeKey: '55'};
 
+// Maximum payout a user can recieve from a single game
+var MAX_PAYOUT = .01
+
 var app = express();
 
 app.use(logger('dev'));
@@ -82,6 +85,7 @@ app.post('/savescore', parseForm, csrfProtection, function (req, res, next) {
         res.status(500).send({success: false});
       } else {
         var gameEarnings = Number((s / 1000000) < 0.001 ? 0.001 : s / 1000000).toFixed(3);
+        gameEarnings = Math.min(gameEarnings, MAX_PAYOUT);
         var transferMsg = "Congratulations on achieving a highscore of " + s + " on level " + l + " at SteemPacman! Your earnings are " + gameEarnings + " STEEM.";
         steem.broadcast.transfer(steemAcct.activeKey, steemAcct.username, n, gameEarnings + ' STEEM', transferMsg, function(err, result){
           console.log(err ? err : result);
