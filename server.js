@@ -16,7 +16,9 @@ var parseForm = bodyParser.urlencoded({ extended: false });
 var steemAcct = {username: 'steemretro', activeKey: '55'};
 
 // Maximum payout a user can recieve from a single game
-var MAX_PAYOUT = .01
+var MAX_PAYOUT = 0.100;
+
+var currentVersion = 1.0;
 
 var app = express();
 
@@ -73,6 +75,10 @@ app.post('/checkname', parseForm, csrfProtection, function (req, res, next) {
 })
 
 app.post('/savescore', parseForm, csrfProtection, function (req, res, next) {
+  if (!(currentVersion == 1.0)) {
+    res.status(500).send({success: false});
+  }
+
   var n = req.body.n;
   var s = req.body.s;
   var l = req.body.l;
@@ -84,15 +90,32 @@ app.post('/savescore', parseForm, csrfProtection, function (req, res, next) {
         console.log(err);
         res.status(500).send({success: false});
       } else {
-        var gameEarnings = Number((s / 1000000) < 0.001 ? 0.001 : s / 1000000).toFixed(3);
-        gameEarnings = Math.min(gameEarnings, MAX_PAYOUT);
-        var transferMsg = "Congratulations on achieving a highscore of " + s + " on level " + l + " at SteemPacman! Your earnings are " + gameEarnings + " STEEM.";
-        steem.broadcast.transfer(steemAcct.activeKey, steemAcct.username, n, gameEarnings + ' STEEM', transferMsg, function(err, result){
-          console.log(err ? err : result);
+        var timestamp = moment();
+        var todaysPayouts = 0;
+        steem.api.getAccountHistory(steemAcct.username,-1,1000, function(err, response){
+          response.forEach(function(item){
+            if (item[1].op[0] === 'transfer') {
+              if (item[1].op[1].to === n && (timestamp.subtract(1, 'days') < item[1].timestamp) < timestamp) {
+                todaysPayouts += parseFloat(item[1].op[1].amount);
+              }
+            }
+          })
+          if (todaysPayouts < MAX_PAYOUT) {
+            var gameEarnings = Number((s / 1000000) < 0.001 ? 0.001 : s / 1000000).toFixed(3);
+            gameEarnings = Math.min(gameEarnings, MAX_PAYOUT);
+            var transferMsg = "Congratulations on achieving a highscore of " + s + " on level " + l + " at SteemPacman! Your earnings are " + gameEarnings + " STEEM.";
+            steem.broadcast.transfer(steemAcct.activeKey, steemAcct.username, n, gameEarnings + ' STEEM', transferMsg, function(err, result){
+              console.log(err ? err : result);
+            });
+            res.send(JSON.stringify({success: true}));
+          } else {
+            res.status(500).send({success: false});
+          }
         });
-        res.send(JSON.stringify({success: true}));
       }
     });
+  } else {
+    res.status(500).send({success: false});
   }
 })
 
