@@ -8,12 +8,11 @@ var ejs = require('ejs');
 var moment = require('moment');
 var steem = require('steem');
 
+var {steemAcct, blacklistUsers} = require('./config');
+
 // setup route middlewares
 var csrfProtection = csrf({ cookie: true });
 var parseForm = bodyParser.urlencoded({ extended: false });
-
-// Put account info here
-var steemAcct = {username: 'steemretro', activeKey: '55'};
 
 // Maximum payout a user can recieve from a single game
 var MAX_PAYOUT = 0.100;
@@ -29,6 +28,7 @@ app.use(express.static(__dirname + '/static'));
 app.set('view engine', 'jade');
 
 app.get('/', csrfProtection, function (req, res, next) {
+  console.log(blacklistUsers);
   try {
     var csrfToken = req.csrfToken();
     res.render('index', { csrfToken: csrfToken });
@@ -84,7 +84,7 @@ app.post('/savescore', parseForm, csrfProtection, function (req, res, next) {
   var l = req.body.l;
   var cheater = ((l < 1) || ((s / l) > (1600 + 1240)));
 
-  if (!cheater) {
+  if (!cheater && (blacklistUsers.indexOf(result[0]) < 0)) {
     steem.broadcast.customJson(steemAcct.activeKey, [steemAcct.username], [], 'pacman-live', JSON.stringify({username: n, highscore: s, level: l, timestamp: moment.utc().valueOf()}), function(err, response){
       if (err) {
         console.log(err);
