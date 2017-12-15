@@ -84,7 +84,7 @@ app.post('/savescore', parseForm, csrfProtection, function (req, res, next) {
   var l = req.body.l;
   var cheater = ((l < 1) || ((s / l) > (1600 + 1240)));
 
-  if (!cheater && (blacklistUsers.indexOf(result[0]) < 0)) {
+  if (!cheater && (blacklistUsers.indexOf(n) < 0)) {
     steem.broadcast.customJson(steemAcct.activeKey, [steemAcct.username], [], 'pacman-live', JSON.stringify({username: n, highscore: s, level: l, timestamp: moment.utc().valueOf()}), function(err, response){
       if (err) {
         console.log(err);
