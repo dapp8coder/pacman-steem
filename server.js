@@ -95,7 +95,7 @@ app.post('/savescore', parseForm, csrfProtection, function (req, res, next) {
         steem.api.getAccountHistory(steemAcct.username,-1,1000, function(err, response){
           response.forEach(function(item){
             if (item[1].op[0] === 'transfer') {
-              if (item[1].op[1].to === n && (timestamp.subtract(1, 'days') < item[1].timestamp) < timestamp) {
+              if (item[1].op[1].to === n && (timestamp.startOf('day') < item[1].timestamp) < timestamp.endOf('day')) {
                 todaysPayouts += parseFloat(item[1].op[1].amount);
               }
             }
