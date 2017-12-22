@@ -10,7 +10,10 @@ var blacklistUsers = [
 	'qweku',
 	'annaburska',
 	'beautyphotos',
-	'phileas0408'
+	'phileas0408',
+	'annaburska',
+	'oskar1979',
+	'aniafx1'
 ];
 
 module.exports = {
