@@ -13,7 +13,13 @@ var blacklistUsers = [
 	'phileas0408',
 	'annaburska',
 	'oskar1979',
-	'aniafx1'
+	'aniafx1',
+	'hussnain',
+	'guidom',
+	'isitfunny',
+	'zafiran',
+	'bestone',
+	'blcblc'
 ];
 
 module.exports = {
